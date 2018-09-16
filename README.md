@@ -1,2 +1,2 @@
 # BotChannel
-Private telegram bot for posting messages from DB to groups
+Private telegram bot for posting messages to group from DB
