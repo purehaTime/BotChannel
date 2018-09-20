@@ -58,7 +58,7 @@ namespace BotChannel.BotCommand.AddVkPost
 
 		private async Task<bool> SecondStep()
 		{
-			var p = await bot.SendTextMessageAsync(message.From.Id, "Send links (separate by ',') direct or vk post/album");
+			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links (separate by ',') or vk post/album");
 			return false;
 		}
 	}

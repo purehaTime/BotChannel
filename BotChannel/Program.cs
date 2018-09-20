@@ -18,6 +18,7 @@ namespace BotChannel
 		public static IWebHost BuildWebHost(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
 				.UseStartup<Startup>()
+				.ConfigureAppConfiguration(conf => conf.AddJsonFile("appsettings.develop.json"))
 				.Build();
 	}
 }
