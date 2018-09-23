@@ -1,4 +1,5 @@
 ﻿using BotChannel.DataManager;
+using BotChannel.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace BotChannel.BotCommand.AddVkPost
 		private ITelegramBotClient bot;
 		private Message message;
 		private DbManager dbManager;
+		private Content contentSave;
 
 		public AddPostCommand()
 		{
@@ -52,14 +54,36 @@ namespace BotChannel.BotCommand.AddVkPost
 
 			var replyButtons = new ReplyKeyboardMarkup(buttons);
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Choose group to add:", replyMarkup: replyButtons);
-			
+
+			NextState = SecondStep;
 			return false;
 		}
 
 		private async Task<bool> SecondStep()
 		{
+			var selectedGroup = message.Text;
+			var groupId = dbManager.GetGroupIdByName(selectedGroup);
+			if (groupId == null)
+			{
+				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was deleted");
+				return true;
+			}
+			contentSave.GroupId = groupId;
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links (separate by ',') or vk post/album");
+
+			NextState = ThridStep;
 			return false;
+		}
+
+		private async Task<bool> ThridStep()
+		{
+			var linkList = message.Text.Split(",");
+			foreach (var link in linkList)
+			{
+				 //parse links
+			}
+			var request = await bot.SendTextMessageAsync(message.From.Id, "Complete !");
+			return true;
 		}
 	}
 

@@ -1,5 +1,6 @@
 ﻿using BotChannel.Model;
 using LiteDB;
+using System;
 using System.Collections.Generic;
 
 namespace BotChannel.DataManager
@@ -52,6 +53,16 @@ namespace BotChannel.DataManager
 				groups.AddRange(groupList);
 			}
 			return groups;
+		}
+
+		public string GetGroupIdByName(string name)
+		{
+			Group group = null;
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				 group = db.GetCollection<Group>("Groups").FindOne(f => f.Title.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+			}
+			return group?.GroupId;
 		}
 	}
 }

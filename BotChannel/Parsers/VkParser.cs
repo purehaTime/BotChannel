@@ -30,28 +30,20 @@ namespace BotChannel.Parsers
 		public List<string> GetLinksFromPost(string linkPost)
 		{
 			var listLinks = new List<string>();
-			try
-			{
-				var id = ParseId(linkPost);
+			var id = ParseId(linkPost);
+			var post = vkApi.Wall.GetById(new[] { id });
 
-				var post = vkApi.Wall.GetById(new[] { id });
-				
-				if (post.WallPosts.Any())
+			if (post.WallPosts.Any())
+			{
+				foreach (var attach in post.WallPosts[0].Attachments)
 				{
-					foreach (var attach in post.WallPosts[0].Attachments)
+					if (attach.Instance is Photo photo)
 					{
-						if (attach.Instance is Photo photo)
-						{
-							var maxSize = photo.Sizes.Max(w => w.Width);
-							var valid = photo.Sizes.First(w => w.Width == maxSize);
-							listLinks.Add(valid.Url.AbsoluteUri);
-						}
+						var maxSize = photo.Sizes.Max(w => w.Width);
+						var valid = photo.Sizes.First(w => w.Width == maxSize);
+						listLinks.Add(valid.Url.AbsoluteUri);
 					}
 				}
-			}
-			catch (Exception err)
-			{
-				// ignored
 			}
 
 			return listLinks;
