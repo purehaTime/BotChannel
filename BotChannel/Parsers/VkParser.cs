@@ -15,23 +15,25 @@ namespace BotChannel.Parsers
 	{
 		public static string AccessToken {get;set;}
 
-		private VkApi vkApi { get; set; }
+		private static VkApi vkApi { get; set; }
 
-		public VkParser()
+		public VkParser(bool reAuth = false)
 		{
-			vkApi = new VkApi();
-
-			vkApi.Authorize(new ApiAuthParams
+			if (vkApi == null || reAuth)
 			{
-				AccessToken = AccessToken
-			});
+				vkApi = new VkApi();
+				vkApi.Authorize(new ApiAuthParams
+				{
+					AccessToken = AccessToken
+				});
+			}
 		}
 
-		public List<string> GetLinksFromPost(string linkPost)
+		public async Task<List<string>> GetLinksFromPost(string linkPost)
 		{
 			var listLinks = new List<string>();
 			var id = ParseId(linkPost);
-			var post = vkApi.Wall.GetById(new[] { id });
+			var post = await vkApi.Wall.GetByIdAsync(new[] { id });
 
 			if (post.WallPosts.Any())
 			{

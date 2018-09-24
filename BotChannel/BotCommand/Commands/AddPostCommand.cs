@@ -1,5 +1,6 @@
 ﻿using BotChannel.DataManager;
 using BotChannel.Model;
+using BotChannel.Parsers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,7 +70,9 @@ namespace BotChannel.BotCommand.AddVkPost
 				return true;
 			}
 			contentSave.GroupId = groupId;
-			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links (separate by ',') or vk post/album");
+			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links " +
+				"(separate by ',' for one post and ';' for array photo to one post). Or VK post/album (every wall-link for one post " +
+				"and one photo from album well be save for one post)");
 
 			NextState = ThridStep;
 			return false;
@@ -80,10 +83,35 @@ namespace BotChannel.BotCommand.AddVkPost
 			var linkList = message.Text.Split(",");
 			foreach (var link in linkList)
 			{
-				 //parse links
+				if (IsValid(link))
+				{
+					if (link.Contains("vk.") && (link.Contains("album") || link.Contains("wall")))   //parse with VK api
+					{
+						var result = await ParseAsVK(link);
+					}
+				}
+
 			}
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Complete !");
 			return true;
+		}
+
+		private bool IsValid(string link)
+		{
+			Uri uri;
+			return link.Contains(".") && Uri.TryCreate(link, UriKind.Absolute, out uri)
+				&& (uri.Scheme == Uri.UriSchemeHttp
+				 || uri.Scheme == Uri.UriSchemeHttps);
+		}
+
+		private async Task<List<string>> ParseAsVK(string link)
+		{
+			VkParser vk = new VkParser();
+			if (link.Contains("wall"))
+			{
+				return await vk.GetLinksFromPost(link);
+			}
+			return await vk.GetLinksFromAlbum(link);
 		}
 	}
 
