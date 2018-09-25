@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotChannel.BotCommand.AddVkPost
@@ -28,7 +27,7 @@ namespace BotChannel.BotCommand.AddVkPost
 
 		public async Task<bool> Action(Message updateMessage)
 		{
-			if (updateMessage.Text.Equals("/cancel"))
+			if (updateMessage.Text.Equals("/cancel"))//TODO: posible to revrite with base class (abstract)
 			{
 				return true;
 			}
@@ -85,14 +84,19 @@ namespace BotChannel.BotCommand.AddVkPost
 			{
 				if (IsValid(link))
 				{
+					List<string> parsedLinks = null;
 					if (link.Contains("vk.") && (link.Contains("album") || link.Contains("wall")))   //parse with VK api
 					{
-						var result = await ParseAsVK(link);
+						parsedLinks = await ParseAsVK(link);
 					}
+					else
+					{
+						parsedLinks = link.Split(";").ToList();
+					}
+					SavePostToDb(parsedLinks);
 				}
-
 			}
-			var request = await bot.SendTextMessageAsync(message.From.Id, "Complete !");
+			var request = await bot.SendTextMessageAsync(message.From.Id, $"Complete ! Saved {linkList.Count()} posts");
 			return true;
 		}
 
@@ -112,6 +116,14 @@ namespace BotChannel.BotCommand.AddVkPost
 				return await vk.GetLinksFromPost(link);
 			}
 			return await vk.GetLinksFromAlbum(link);
+		}
+
+		private void SavePostToDb(List<string> linkList)
+		{
+			contentSave.MessagerType = "telegram";
+			contentSave.Posted = false;
+			contentSave.PhotoList = linkList.ToArray();
+			dbManager.AddNewPost(contentSave);
 		}
 	}
 

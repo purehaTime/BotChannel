@@ -14,17 +14,12 @@ namespace BotChannel.DataManager
 			Dbfile = Dbfile ?? "db.db";
 		}
 
-		public void AddData(Content content)
+		public void AddNewPost(Content content)
 		{
 			using (var db = new LiteDatabase(Dbfile))
 			{
-				// Get customer collection
 				var contents = db.GetCollection<Content>("Contents");
-
-				// Insert new customer document (Id will be auto-incremented)
 				contents.Insert(content);
-
-				// Index document using a document property
 				contents.EnsureIndex(x => x.PhotoList);
 			}
 		}
@@ -33,13 +28,8 @@ namespace BotChannel.DataManager
 		{
 			using (var db = new LiteDatabase(Dbfile))
 			{
-				// Get customer collection
 				var groups = db.GetCollection<Group>("Groups");
-
-				// Insert new customer document (Id will be auto-incremented)
 				groups.Insert(model);
-
-				// Index document using a document property
 				groups.EnsureIndex(x => x.GroupId);
 			}
 		}
