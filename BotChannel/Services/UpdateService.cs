@@ -19,7 +19,12 @@ namespace BotChannel.Services
 			_previosMessage = _previosMessage ?? new Message();
 
 		}
-
+		/// <summary>
+		/// Main. check valid user? then seeing users states command. 
+		/// If nothing found - search cammands to start new state for user
+		/// </summary>
+		/// <param name="update">telegram message</param>
+		/// <returns></returns>
 		public async Task EchoAsync(Update update)
 		{
 			if (update.Type != UpdateType.Message)

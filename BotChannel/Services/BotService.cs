@@ -35,8 +35,7 @@ namespace BotChannel.Services
 						? new WebProxy(value.Socks5Host, value.Socks5Port ?? 8080)
 						: new WebProxy($"{value.Socks5Host}:{value.Socks5Port ?? 8080}"
 							, false, null, new NetworkCredential(value.ProxyLogin, value.ProxyPassword)));
-			;
-
+			//initialise command factory for bot
 			BotCommands.Initialize(Client);
 		}
 	}

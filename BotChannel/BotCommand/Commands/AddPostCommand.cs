@@ -6,40 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotChannel.BotCommand.AddVkPost
 {
-	public class AddPostCommand : ICommand
+	public class AddPostCommand : BaseCommand, ICommand
 	{
-		public Func<Task<bool>> NextState { get; set; }
-
-		private ITelegramBotClient bot;
-		private Message message;
 		private DbManager dbManager;
 		private Content contentSave;
 
-		public AddPostCommand()
+		public AddPostCommand(ITelegramBotClient clientBot): base(clientBot)
 		{
-			dbManager = new DbManager();
-		}
-
-		public async Task<bool> Action(Message updateMessage)
-		{
-			if (updateMessage.Text.Equals("/cancel"))//TODO: posible to revrite with base class (abstract)
-			{
-				return true;
-			}
-
-			message = updateMessage;
-			return await NextState();
-		}
-
-		public AddPostCommand(ITelegramBotClient clientBot)
-		{
-			bot = clientBot;
 			NextState = FirstStep;
+			dbManager = new DbManager();
 		}
 
 		private async Task<bool> FirstStep()
@@ -68,6 +47,7 @@ namespace BotChannel.BotCommand.AddVkPost
 				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was deleted");
 				return true;
 			}
+			contentSave = new Content();
 			contentSave.GroupId = groupId;
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links " +
 				"(separate by ',' for one post and ';' for array photo to one post). Or VK post/album (every wall-link for one post " +

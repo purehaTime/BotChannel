@@ -10,9 +10,13 @@ namespace BotChannel.BotCommand
 
 		public static void Initialize(ITelegramBotClient telegramBot)
 		{
+			// Add new command here
+			// new command must be defined with base calss and ICommand interface
+			// then defined a first step (in ctor)
 			CommandFactory = new Dictionary<string, ICommand>
 			{
-				{ "/addpost", new AddPostCommand(telegramBot)}
+				{ "/addpost", new AddPostCommand(telegramBot)},
+				{ "/addgroup", new AddGroupCommand(telegramBot)}
 			};
 		}
 	}
