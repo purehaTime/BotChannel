@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace BotChannel.BotCommand.AddVkPost
+namespace BotChannel.BotCommand.Commands
 {
 	public class AddPostCommand : BaseCommand, ICommand
 	{
@@ -41,14 +41,14 @@ namespace BotChannel.BotCommand.AddVkPost
 		private async Task<bool> SecondStep()
 		{
 			var selectedGroup = message.Text;
-			var groupId = dbManager.GetGroupIdByName(selectedGroup);
+			var groupId = dbManager.GetGroupByName(selectedGroup);
 			if (groupId == null)
 			{
-				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was deleted");
+				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was not found");
 				return true;
 			}
 			contentSave = new Content();
-			contentSave.GroupId = groupId;
+			contentSave.GroupId = groupId?.GroupId;
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links " +
 				"(separate by ',' for one post and ';' for array photo to one post). Or VK post/album (every wall-link for one post " +
 				"and one photo from album well be save for one post)");

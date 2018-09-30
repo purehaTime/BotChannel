@@ -25,7 +25,7 @@ namespace BotChannel.Services
 
 			//list of valid users (telegram id)
 			UserAccess = config.Value.UserAccess;
-			
+			UserActions = new List<UserAction>();
 			var value = config.Value;
 			// use proxy (with credential or not) if configured in appsettings.*.json
 			Client = string.IsNullOrEmpty(value.Socks5Host)

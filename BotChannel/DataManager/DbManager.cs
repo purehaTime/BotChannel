@@ -45,14 +45,23 @@ namespace BotChannel.DataManager
 			return groups;
 		}
 
-		public string GetGroupIdByName(string name)
+		public Group GetGroupByName(string name)
 		{
 			Group group = null;
 			using (var db = new LiteDatabase(Dbfile))
 			{
 				 group = db.GetCollection<Group>("Groups").FindOne(f => f.Title.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 			}
-			return group?.GroupId;
+			return group;
+		}
+
+		public void UpdateGroup(Group updatingGroup)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var update = db.GetCollection<Group>("Groups");
+				update.Update(updatingGroup);
+			}
 		}
 	}
 }

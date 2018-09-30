@@ -64,6 +64,7 @@ namespace BotChannel.Services
 						Command = command.Value,
 						IdUser = message.From.Id
 					});
+					await command.Value.Action(message);
 				}
 			}
 		}

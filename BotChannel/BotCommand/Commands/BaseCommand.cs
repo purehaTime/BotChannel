@@ -4,7 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 
 
-namespace BotChannel.BotCommand.AddVkPost
+namespace BotChannel.BotCommand.Commands
 {
 	public abstract class BaseCommand
 	{

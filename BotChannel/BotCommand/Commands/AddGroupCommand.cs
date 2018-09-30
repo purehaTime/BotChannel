@@ -3,7 +3,7 @@ using BotChannel.Model;
 using System.Threading.Tasks;
 using Telegram.Bot;
 
-namespace BotChannel.BotCommand.AddVkPost
+namespace BotChannel.BotCommand.Commands
 {
 	public class AddGroupCommand : BaseCommand, ICommand
 	{

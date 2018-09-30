@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using BotChannel.BotCommand.AddVkPost;
+using BotChannel.BotCommand.Commands;
 using Telegram.Bot;
 
 namespace BotChannel.BotCommand
@@ -16,7 +16,8 @@ namespace BotChannel.BotCommand
 			CommandFactory = new Dictionary<string, ICommand>
 			{
 				{ "/addpost", new AddPostCommand(telegramBot)},
-				{ "/addgroup", new AddGroupCommand(telegramBot)}
+				{ "/addgroup", new AddGroupCommand(telegramBot)},
+				{ "/editgroup", new EditGroupCommand(telegramBot)},
 			};
 		}
 	}
