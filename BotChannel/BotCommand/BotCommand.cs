@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BotChannel.BotCommand.Commands;
 using Telegram.Bot;
@@ -6,19 +7,23 @@ namespace BotChannel.BotCommand
 {
 	public static class BotCommands
 	{
-		public static Dictionary<string, ICommand> CommandFactory { get; set; }
+		private static Dictionary<string, Func<ITelegramBotClient, ICommand>> CommandStore { get; set; }
 
-		public static void Initialize(ITelegramBotClient telegramBot)
+		// init storage of commands for factory command
+		static BotCommands()
 		{
-			// Add new command here
-			// new command must be defined with base calss and ICommand interface
-			// then defined a first step (in ctor)
-			CommandFactory = new Dictionary<string, ICommand>
+			CommandStore = new Dictionary<string, Func<ITelegramBotClient, ICommand>>
 			{
-				{ "/addpost", new AddPostCommand(telegramBot)},
-				{ "/addgroup", new AddGroupCommand(telegramBot)},
-				{ "/editgroup", new EditGroupCommand(telegramBot)},
+				{"/addpost", (bot) => new AddPostCommand(bot)},
+				{"/addgroup", (bot) => new AddGroupCommand(bot)},
+				{"/editgroup", (bot) => new EditGroupCommand(bot)},
 			};
+		}
+
+		public static ICommand GetCommand(ITelegramBotClient bot, string command)
+		{
+			var result = CommandStore[command] ?? null;
+			return result?.Invoke(bot);
 		}
 	}
 }

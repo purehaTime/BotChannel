@@ -11,12 +11,12 @@ namespace BotChannel.Services
 	{
 		private readonly IBotService _botService;
 
-		private static Message _previosMessage = null;
+		private static int? _previosMessageId { get; set; }
 
 		public UpdateService(IBotService botService)
 		{
 			_botService = botService;
-			_previosMessage = _previosMessage ?? new Message();
+			_previosMessageId = _previosMessageId ?? 0;
 
 		}
 		/// <summary>
@@ -33,6 +33,13 @@ namespace BotChannel.Services
 			}
 
 			var message = update.Message;
+
+			if (_previosMessageId == message.MessageId)
+			{
+				return;	//prevent "spaming" from telegram server
+			}
+			_previosMessageId = message.MessageId;
+
 			var idUser = message.From.Id;
 
 			//only for valid users
@@ -56,15 +63,15 @@ namespace BotChannel.Services
 
 			if (message.Type == MessageType.Text)
 			{
-				var command = BotCommands.CommandFactory.FirstOrDefault(key => key.Key == message.Text);
-				if (command.Value != null)
+				var command = BotCommands.GetCommand(_botService.Client, message.Text);
+				if (command != null)
 				{
 					_botService.UserActions.Add(new UserAction
 					{
-						Command = command.Value,
+						Command = command,
 						IdUser = message.From.Id
 					});
-					await command.Value.Action(message);
+					await command.Action(message);
 				}
 			}
 		}
