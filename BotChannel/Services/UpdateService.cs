@@ -20,34 +20,19 @@ namespace BotChannel.Services
 
 		}
 		/// <summary>
-		/// Main. check valid user? then seeing users states command. 
+		/// Main.validation then seeing users states command and added new stack if command correct. 
 		/// If nothing found - search cammands to start new state for user
 		/// </summary>
 		/// <param name="update">telegram message</param>
 		/// <returns></returns>
 		public async Task EchoAsync(Update update)
 		{
-			if (update.Type != UpdateType.Message)
-			{
+			 // check is anything correct
+			if (!Validation(update))
 				return;
-			}
 
 			var message = update.Message;
-
-			if (_previosMessageId == message.MessageId)
-			{
-				return;	//prevent "spaming" from telegram server
-			}
-			_previosMessageId = message.MessageId;
-
 			var idUser = message.From.Id;
-
-			//only for valid users
-			if (!_botService.UserAccess.Any(u => u == idUser))
-			{
-				return;
-			}
-
 			//if it is has command - execute next state	of command
 			var action = _botService.UserActions.FirstOrDefault(user => user.IdUser == idUser);
 
@@ -63,17 +48,71 @@ namespace BotChannel.Services
 
 			if (message.Type == MessageType.Text)
 			{
-				var command = BotCommands.GetCommand(_botService.Client, message.Text);
-				if (command != null)
-				{
-					_botService.UserActions.Add(new UserAction
-					{
-						Command = command,
-						IdUser = message.From.Id
-					});
-					await command.Action(message);
-				}
+				await AddNewCommandStack(message, idUser);
 			}
+		}
+
+		private async Task AddNewCommandStack(Message message, long idUser)
+		{
+			var command = BotCommands.GetCommandAction(_botService.Client, message.Text);
+			var isExists = _botService.UserActions.Any(user => user.IdUser == idUser);
+			if (command != null && !isExists)
+			{
+				_botService.UserActions.Add(new UserAction
+				{
+					Command = command,
+					IdUser = message.From.Id
+				});
+				await command.Action(message);
+				return;
+			}
+
+			await DefaultCommand(message);
+		}
+		
+		/// <summary>
+		/// Validation on: messageType is text, access for valid user, and new messages
+		/// </summary>
+		/// <param name="update"></param>
+		/// <returns></returns>
+		private bool Validation(Update update)
+		{
+			if (update.Type != UpdateType.Message)
+			{
+				return false;
+			}
+
+			var message = update.Message;
+
+			if (_previosMessageId == message.MessageId)
+			{
+				return false; //prevent "spaming" from telegram server
+			}
+			_previosMessageId = message.MessageId;
+
+			var idUser = message.From.Id;
+
+			//only for valid users
+			if (!_botService.UserAccess.Any(u => u == idUser))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Send a list of avaliable commands
+		/// </summary>
+		/// <returns></returns>
+		private async Task DefaultCommand(Message message)
+		{
+			var list = BotCommands.GetCommands();
+
+			var result = "Avaliable commands: \r\n";
+			result = string.Join("\r\n", list);
+
+			await _botService.Client.SendTextMessageAsync(message.From.Id, result);
 		}
 	}
 }

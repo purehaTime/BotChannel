@@ -26,6 +26,8 @@ namespace BotChannel
 
 			DbManager.Dbfile = Configuration.GetSection("Db")?.GetValue<string>("File");
 
+			
+
 		}
 
 		public void Configure(IApplicationBuilder app)

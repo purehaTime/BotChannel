@@ -52,9 +52,15 @@ namespace BotChannel.BotCommand.Commands
 			if (int.TryParse(interval, out var valid))
 			{
 				groupSave.Interval = valid;
-				dbManager.AddGroup(groupSave);
-				await bot.SendTextMessageAsync(message.Chat.Id, "Complete save group");
-				return true;
+				var result = dbManager.AddGroup(groupSave);
+
+				if (result)
+				{
+					await bot.SendTextMessageAsync(message.Chat.Id, "Complete save group");
+					return true;
+				}
+				await bot.SendTextMessageAsync(message.Chat.Id, "The group is exist");
+				return false;
 			}
 			await bot.SendTextMessageAsync(message.Chat.Id, "Incorrect interval, try again: ");
 			return false;

@@ -29,9 +29,9 @@ namespace BotChannel.BotCommand.Commands
 			}
 
 			var replyButtons = new ReplyKeyboardMarkup(buttons);
-			var request = await bot.SendTextMessageAsync(message.From.Id, "Choose group to edit:", replyMarkup: replyButtons);
-
+			await bot.SendTextMessageAsync(message.From.Id, "Choose group to edit:", replyMarkup: replyButtons);
 			NextState = SecondStep;
+
 			return false;
 		}
 
@@ -39,6 +39,7 @@ namespace BotChannel.BotCommand.Commands
 		{
 			var selectedGroup = message.Text;
 			groupEdit = dbManager.GetGroupByName(selectedGroup);
+
 			if (groupEdit == null)
 			{
 				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was not found");
@@ -61,6 +62,7 @@ namespace BotChannel.BotCommand.Commands
 				await bot.SendTextMessageAsync(message.Chat.Id, "Complete update group");
 				return true;
 			}
+
 			await bot.SendTextMessageAsync(message.Chat.Id, "Incorrect interval, try again: ");
 			return false;
 		}

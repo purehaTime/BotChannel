@@ -20,10 +20,15 @@ namespace BotChannel.BotCommand
 			};
 		}
 
-		public static ICommand GetCommand(ITelegramBotClient bot, string command)
+		public static ICommand GetCommandAction(ITelegramBotClient bot, string command)
 		{
 			var result = CommandStore[command] ?? null;
 			return result?.Invoke(bot);
+		}
+
+		public static List<string> GetCommands()
+		{
+			return new List<string>(CommandStore.Keys);
 		}
 	}
 }

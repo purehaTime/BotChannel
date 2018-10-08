@@ -32,7 +32,7 @@ namespace BotChannel.BotCommand.Commands
 			}
 
 			var replyButtons = new ReplyKeyboardMarkup(buttons);
-			var request = await bot.SendTextMessageAsync(message.From.Id, "Choose group to add:", replyMarkup: replyButtons);
+			await bot.SendTextMessageAsync(message.From.Id, "Choose group to add:", replyMarkup: replyButtons);
 
 			NextState = SecondStep;
 			return false;
@@ -76,7 +76,8 @@ namespace BotChannel.BotCommand.Commands
 					SavePostToDb(parsedLinks);
 				}
 			}
-			var request = await bot.SendTextMessageAsync(message.From.Id, $"Complete ! Saved {linkList.Count()} posts");
+
+			await bot.SendTextMessageAsync(message.From.Id, $"Complete ! Saved {linkList.Count()} posts");
 			return true;
 		}
 

@@ -24,14 +24,19 @@ namespace BotChannel.DataManager
 			}
 		}
 
-		public void AddGroup(Group model)
+		public bool AddGroup(Group model)
 		{
 			using (var db = new LiteDatabase(Dbfile))
 			{
 				var groups = db.GetCollection<Group>("Groups");
-				groups.Insert(model);
-				groups.EnsureIndex(x => x.GroupId);
+				if (!groups.Exists(e => e.GroupId == model.GroupId))
+				{
+					groups.Insert(model);
+					groups.EnsureIndex(x => x.GroupId);
+					return true;
+				}
 			}
+			return false;
 		}
 
 		public List<Group> GetGroups()
@@ -61,6 +66,18 @@ namespace BotChannel.DataManager
 			{
 				var update = db.GetCollection<Group>("Groups");
 				update.Update(updatingGroup);
+			}
+		}
+
+		public long GetAvalablePostForGroup(Group group)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var postsCount = db.GetCollection<Content>().Count(cnt =>
+						(!cnt.Posted)
+						&& cnt.GroupId.Equals(group.GroupId, StringComparison.InvariantCultureIgnoreCase));
+
+				return postsCount;
 			}
 		}
 	}
