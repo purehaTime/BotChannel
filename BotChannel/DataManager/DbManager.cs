@@ -69,15 +69,56 @@ namespace BotChannel.DataManager
 			}
 		}
 
-		public long GetAvalablePostForGroup(Group group)
+		public List<Group> GetGroupsWithAvaliableContent()
+		{
+			List<Group> groups = new List<Group>();
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var groupList = db.GetCollection<Group>("Groups").FindAll();
+				foreach (var group in groupList)
+				{
+					var postsCount = db.GetCollection<Content>("Contents").Count(cnt =>
+						!cnt.Posted
+						&& cnt.GroupId.Equals(group.GroupId, StringComparison.InvariantCultureIgnoreCase));
+
+					if (postsCount > 0)
+					{
+						groups.Add(group);
+					}
+				}
+				
+			}
+			return groups;
+		}
+
+		/// <summary>
+		/// Get numbers of avaliable content by group
+		/// </summary>
+		/// <param name="group"></param>
+		/// <returns></returns>
+		public int GetAvalablePostForGroup(Group group)
 		{
 			using (var db = new LiteDatabase(Dbfile))
 			{
-				var postsCount = db.GetCollection<Content>().Count(cnt =>
-						(!cnt.Posted)
+				var postsCount = db.GetCollection<Content>("Contents").Count(cnt =>
+						!cnt.Posted
 						&& cnt.GroupId.Equals(group.GroupId, StringComparison.InvariantCultureIgnoreCase));
 
 				return postsCount;
+			}
+		}
+
+		public Content GetContentByNumber(int number, string groupId)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var allPosts = db.GetCollection<Content>("Contents").Find(f => 
+							!f.Posted
+							&& f.GroupId.Equals(groupId, StringComparison.InvariantCultureIgnoreCase));
+				var list = new List<Content>(allPosts);
+				//prevent OutOfRange exception
+				var result = (list.Count >= number) ? list[number] : null;
+				return result;
 			}
 		}
 	}

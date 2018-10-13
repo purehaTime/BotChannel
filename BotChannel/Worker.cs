@@ -5,26 +5,29 @@ using Telegram.Bot;
 using System;
 using BotChannel.Model;
 using Telegram.Bot.Types;
+using BotChannel.Services;
+using System.Linq;
+using Telegram.Bot.Types.InputFiles;
 
 namespace BotChannel
 {
 	/// <summary>
 	/// Backgroud worker for post to all grops in db
-	/// Just create tasks for each group witsh will posting by infinity loop
+	/// Just create tasks for each group wich will be posting by infinity loop
 	/// </summary>
 	public class Worker
 	{
-		private ITelegramBotClient _bot { get; set; }
+		private IBotService _botService { get; set; }
 
-		public Worker(ITelegramBotClient telegramBot)
+		public Worker(IBotService botService)
 		{
-			_bot = telegramBot;
+			_botService = botService;
 		}
 
 		public void StartPosting()
 		{
 			DbManager db = new DbManager();
-			var groups = db.GetGroups();
+			var groups = db.GetGroupsWithAvaliableContent();
 
 			if (groups.Count > 0)
 			{
@@ -37,26 +40,43 @@ namespace BotChannel
 
 		private async Task PosterWork(Group group)
 		{
+			var bot = _botService.Client;
+			var mainUser = _botService.UserAccess.FirstOrDefault();	 // the first user in config will be used for send inforamtion
 			try
 			{
 				//delay will be first, coz groups may be have diff interval, so just for stop spaming
-				await Task.Delay(group.Interval); 
+				await Task.Delay(group.Interval);
 				while (true)
 				{
-					var post = new List<InputMediaBase>();
+					var postList = new List<InputMediaBase>();
 					DbManager db = new DbManager();
-					//for get randomly interval
+					//for randomly interval
 					var postsCount = db.GetAvalablePostForGroup(group);
-					//get random avaliable post
-					// make post for bot
+					if (postsCount == 0)
+					{
+						await bot.SendTextMessageAsync(mainUser, $"All content for {group.GroupId}:{group.Title} was posted !");
+						return;
+					}
+					var rnd = new Random().Next(postsCount);
+					var post = db.GetContentByNumber(rnd, group.GroupId);
 
-					await _bot.SendMediaGroupAsync(group.GroupId, post);
+					if (post != null)
+					{
+						foreach (var photoLink in post.PhotoList)
+						{
+							var photo = new InputMediaPhoto();
+							photo.Media = new InputMedia(photoLink);
+							postList.Add(photo);
+						}
+
+						await bot.SendMediaGroupAsync(group.GroupId, postList);
+					}
 					//make post as "posted"
 				}
 			}
 			catch (Exception err)
 			{
-				await _bot.SendTextMessageAsync("", err.Message);
+				await bot.SendTextMessageAsync(mainUser, err.Message);
 			}
 		}
 	}
