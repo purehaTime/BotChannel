@@ -1,7 +1,7 @@
 ﻿
 namespace BotChannel.Model
 {
-	public class AdvertModel
+	public class Advert
 	{
 		public int Id { get; set; }
 		public int Interval { get; set; }

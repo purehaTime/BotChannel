@@ -17,6 +17,7 @@ namespace BotChannel.BotCommand
 				{"/addpost", (bot) => new AddPostCommand(bot)},
 				{"/addgroup", (bot) => new AddGroupCommand(bot)},
 				{"/editgroup", (bot) => new EditGroupCommand(bot)},
+				{"/addadvert", (bot) => new AddAdvertCommand(bot)},
 			};
 		}
 

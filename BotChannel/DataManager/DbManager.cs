@@ -79,7 +79,7 @@ namespace BotChannel.DataManager
 				{
 					var postsCount = db.GetCollection<Content>("Contents").Count(cnt =>
 						!cnt.Posted
-						&& cnt.GroupId.Equals(group.GroupId, StringComparison.InvariantCultureIgnoreCase));
+						&& cnt.GroupId.Equals(group.GroupId));
 
 					if (postsCount > 0)
 					{
@@ -89,6 +89,31 @@ namespace BotChannel.DataManager
 				
 			}
 			return groups;
+		}
+
+		public void AddAdvert(Advert advert)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var adverts = db.GetCollection<Advert>("Adverts");
+				adverts.Insert(advert);
+				adverts.EnsureIndex(x => x.Id);
+			}
+		}
+
+		/// <summary>
+		/// Make content as posted, used UTC time
+		/// </summary>
+		/// <param name="post"></param>
+		public void MakePosted(Content post)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				post.Posted = true;
+				post.TimePosted = DateTime.UtcNow;
+				var contents = db.GetCollection<Content>("Contents");
+				contents.Update(post);
+			}
 		}
 
 		/// <summary>
@@ -102,7 +127,7 @@ namespace BotChannel.DataManager
 			{
 				var postsCount = db.GetCollection<Content>("Contents").Count(cnt =>
 						!cnt.Posted
-						&& cnt.GroupId.Equals(group.GroupId, StringComparison.InvariantCultureIgnoreCase));
+						&& cnt.GroupId.Equals(group.GroupId));
 
 				return postsCount;
 			}
@@ -114,11 +139,23 @@ namespace BotChannel.DataManager
 			{
 				var allPosts = db.GetCollection<Content>("Contents").Find(f => 
 							!f.Posted
-							&& f.GroupId.Equals(groupId, StringComparison.InvariantCultureIgnoreCase));
+							&& f.GroupId.Equals(groupId));
 				var list = new List<Content>(allPosts);
 				//prevent OutOfRange exception
 				var result = (list.Count >= number) ? list[number] : null;
 				return result;
+			}
+		}
+
+		public List<Advert> GetAdvertsByGroup(Group group)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var results = new List<Advert>();
+				var adverts = db.GetCollection<Advert>("Adverts").Find(f => f.GroupId.Equals(group.GroupId));
+				results.AddRange(adverts);
+
+				return results;
 			}
 		}
 	}

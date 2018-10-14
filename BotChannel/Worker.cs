@@ -7,7 +7,6 @@ using BotChannel.Model;
 using Telegram.Bot.Types;
 using BotChannel.Services;
 using System.Linq;
-using Telegram.Bot.Types.InputFiles;
 
 namespace BotChannel
 {
@@ -18,6 +17,8 @@ namespace BotChannel
 	public class Worker
 	{
 		private IBotService _botService { get; set; }
+		//to manage of worker tasks
+		private static Dictionary<int, Task> taskManager { get; set; }
 
 		public Worker(IBotService botService)
 		{
@@ -34,6 +35,14 @@ namespace BotChannel
 				foreach (var group in groups)
 				{
 					Task.Run(() => PosterWork(group));
+
+					var adverts = db.GetAdvertsByGroup(group);
+					//coz group may content multiple adverts
+					//and it doesn't make sense	to post advert without content
+					foreach (var advert in adverts)
+					{
+						Task.Run(() => PosterWork(group));
+					}
 				}
 			}
 		}
@@ -44,13 +53,13 @@ namespace BotChannel
 			var mainUser = _botService.UserAccess.FirstOrDefault();	 // the first user in config will be used for send inforamtion
 			try
 			{
-				//delay will be first, coz groups may be have diff interval, so just for stop spaming
-				await Task.Delay(group.Interval);
 				while (true)
 				{
-					var postList = new List<InputMediaBase>();
+					//delay will be first, coz groups may be have diff interval, so just for stop spaming
+					await Task.Delay(group.Interval);
+					
 					DbManager db = new DbManager();
-					//for randomly interval
+					//for randomly post
 					var postsCount = db.GetAvalablePostForGroup(group);
 					if (postsCount == 0)
 					{
@@ -62,6 +71,8 @@ namespace BotChannel
 
 					if (post != null)
 					{
+						var postList = new List<InputMediaBase>();
+
 						foreach (var photoLink in post.PhotoList)
 						{
 							var photo = new InputMediaPhoto();
@@ -70,9 +81,29 @@ namespace BotChannel
 						}
 
 						await bot.SendMediaGroupAsync(group.GroupId, postList);
+						db.MakePosted(post);
 					}
 					//make post as "posted"
 				}
+			}
+			catch (Exception err)
+			{
+				await bot.SendTextMessageAsync(mainUser, err.Message);
+			}
+		}
+
+		private async Task AdvertWork(Advert advert)
+		{
+			var bot = _botService.Client;
+			var mainUser = _botService.UserAccess.FirstOrDefault();  // the first user in config will be used for send inforamtion
+			try
+			{
+				while (true)
+				{
+					await Task.Delay(advert.Interval);
+					await bot.SendTextMessageAsync(advert.GroupId, advert.Message);
+				}
+
 			}
 			catch (Exception err)
 			{
