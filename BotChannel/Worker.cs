@@ -14,40 +14,55 @@ namespace BotChannel
 	/// Backgroud worker for post to all grops in db
 	/// Just create tasks for each group wich will be posting by infinity loop
 	/// </summary>
-	public class Worker
+	public static class Worker
 	{
-		private IBotService _botService { get; set; }
 		//to manage of worker tasks
-		private static Dictionary<int, Task> taskManager { get; set; }
+		private static Dictionary<int, Task> _taskManager { get; set; }
 
-		public Worker(IBotService botService)
-		{
-			_botService = botService;
-		}
+		//bad way to use this variant
+		private static IBotService _botService { get; set; }
 
-		public void StartPosting()
+		private static List<TaskWorker> _tasksWorkerPost { get; set; }
+		private static List<TaskWorker> _tasksWorkerAdvert { get; set; }
+
+		public static void StartPosting(IBotService botService)
 		{
 			DbManager db = new DbManager();
+			_tasksWorkerPost = new List<TaskWorker>();
+			_tasksWorkerAdvert = new List<TaskWorker>();
+			_botService = botService;
+
 			var groups = db.GetGroupsWithAvaliableContent();
 
 			if (groups.Count > 0)
 			{
 				foreach (var group in groups)
 				{
-					Task.Run(() => PosterWork(group));
+					var postTask = Task.Run(() => PosterWork(group));
+					//need for manage tasks
+					_tasksWorkerPost.Add(new TaskWorker
+					{
+						Id = group.GroupId,
+						TaskInWork = postTask
+					});
 
 					var adverts = db.GetAdvertsByGroup(group);
 					//coz group may content multiple adverts
 					//and it doesn't make sense	to post advert without content
 					foreach (var advert in adverts)
 					{
-						Task.Run(() => PosterWork(group));
+						var advertTask = Task.Run(() => AdvertWork(advert));
+						_tasksWorkerPost.Add(new TaskWorker
+						{
+							Id = advert.Id.ToString(),
+							TaskInWork = advertTask
+						});
 					}
 				}
 			}
 		}
 
-		private async Task PosterWork(Group group)
+		private static async Task PosterWork(Group group)
 		{
 			var bot = _botService.Client;
 			var mainUser = _botService.UserAccess.FirstOrDefault();	 // the first user in config will be used for send inforamtion
@@ -92,7 +107,7 @@ namespace BotChannel
 			}
 		}
 
-		private async Task AdvertWork(Advert advert)
+		private static async Task AdvertWork(Advert advert)
 		{
 			var bot = _botService.Client;
 			var mainUser = _botService.UserAccess.FirstOrDefault();  // the first user in config will be used for send inforamtion
