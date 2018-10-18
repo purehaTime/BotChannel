@@ -157,6 +157,15 @@ namespace BotChannel.DataManager
 
 				return results;
 			}
+
+		}
+
+		public void DeleteAdvert(Advert advert)
+		{
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				var result = db.GetCollection<Advert>("Adverts").Delete(d => d.Id == advert.Id);
+			}
 		}
 	}
 }

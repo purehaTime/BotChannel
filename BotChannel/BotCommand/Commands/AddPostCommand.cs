@@ -41,14 +41,14 @@ namespace BotChannel.BotCommand.Commands
 		private async Task<bool> SecondStep()
 		{
 			var selectedGroup = message.Text;
-			var groupId = dbManager.GetGroupByName(selectedGroup);
-			if (groupId == null)
+			var group = dbManager.GetGroupByName(selectedGroup);
+			if (group == null)
 			{
 				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was not found");
 				return true;
 			}
 			contentSave = new Content();
-			contentSave.GroupId = groupId?.GroupId;
+			contentSave.GroupId = group?.GroupId;
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links " +
 				"(separate by ',' for one post and ';' for array photo to one post). Or VK post/album (every wall-link for one post " +
 				"and one photo from album well be save for one post)");
