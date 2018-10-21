@@ -102,14 +102,14 @@ namespace BotChannel.Services
 		}
 
 		/// <summary>
-		/// Send a list of avaliable commands
+		/// Send a list of available commands
 		/// </summary>
 		/// <returns></returns>
 		private async Task DefaultCommand(Message message)
 		{
 			var list = BotCommands.GetCommands();
 
-			var result = "Avaliable commands: \r\n";
+			var result = "Available commands: \r\n";
 			result = string.Join("\r\n", list);
 
 			await _botService.Client.SendTextMessageAsync(message.From.Id, result);

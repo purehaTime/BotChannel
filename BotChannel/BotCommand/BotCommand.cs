@@ -15,9 +15,11 @@ namespace BotChannel.BotCommand
 			CommandStore = new Dictionary<string, Func<ITelegramBotClient, ICommand>>
 			{
 				{"/addpost", (bot) => new AddPostCommand(bot)},
+				{"/stats", (bot) => new StatisticsCommand(bot)},
 				{"/addgroup", (bot) => new AddGroupCommand(bot)},
 				{"/editgroup", (bot) => new EditGroupCommand(bot)},
 				{"/addadvert", (bot) => new AddAdvertCommand(bot)},
+				{"/stopposting", (bot) => new StopPostingCommand(bot)},
 				{"/deleteadvert", (bot) => new DeleteAdvertCommand(bot)}
 			};
 		}

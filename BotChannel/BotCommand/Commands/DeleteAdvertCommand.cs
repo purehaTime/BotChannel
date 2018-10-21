@@ -74,8 +74,11 @@ namespace BotChannel.BotCommand.Commands
 				var text = message.Text;
 				if (text.Equals("Delete this"))
 				{
-					dbManager.DeleteAdvert(advertList.FirstOrDefault());
+					var deleting = advertList.FirstOrDefault();
+					dbManager.DeleteAdvert(deleting);
+					Worker.StopAdvertTask(deleting);
 					await bot.SendTextMessageAsync(message.From.Id, "Advert was removed");
+					return true;
 				}
 				advertList.RemoveAt(0);
 				await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: advertSwitcher);

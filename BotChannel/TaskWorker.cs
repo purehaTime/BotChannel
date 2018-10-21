@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace BotChannel
 {
 	public class TaskWorker
 	{
 		public string Id { get; set; }
-		public Task TaskInWork {get; set;}
+		public CancellationTokenSource TaskToken {get; set;}
 	}
 }

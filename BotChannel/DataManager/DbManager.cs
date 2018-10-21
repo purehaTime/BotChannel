@@ -69,7 +69,7 @@ namespace BotChannel.DataManager
 			}
 		}
 
-		public List<Group> GetGroupsWithAvaliableContent()
+		public List<Group> GetGroupsWithAvailableContent()
 		{
 			List<Group> groups = new List<Group>();
 			using (var db = new LiteDatabase(Dbfile))
@@ -117,11 +117,11 @@ namespace BotChannel.DataManager
 		}
 
 		/// <summary>
-		/// Get numbers of avaliable content by group
+		/// Get numbers of available content by group
 		/// </summary>
 		/// <param name="group"></param>
 		/// <returns></returns>
-		public int GetAvalablePostForGroup(Group group)
+		public int GetCountAvailablePostForGroup(Group group)
 		{
 			using (var db = new LiteDatabase(Dbfile))
 			{
