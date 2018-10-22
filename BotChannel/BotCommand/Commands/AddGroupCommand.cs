@@ -30,12 +30,20 @@ namespace BotChannel.BotCommand.Commands
 			var group = await bot.GetChatAsync(chatId);
 			if (group != null)
 			{
+				var isExist = dbManager.GetGroupById(chatId);
+				if (isExist != null)
+				{
+					await bot.SendTextMessageAsync(message.Chat.Id, "The group is exist");
+					return true;
+				}
+
 				groupSave = new Group
 				{
 					GroupId = chatId,
 					Title = group.Title,
 					Link = group.InviteLink
 				};
+
 				await bot.SendTextMessageAsync(message.Chat.Id, "Enter a interval (in seconds) of time of post");
 				NextState = ThridStep;
 				return false;
@@ -60,7 +68,7 @@ namespace BotChannel.BotCommand.Commands
 					return true;
 				}
 				await bot.SendTextMessageAsync(message.Chat.Id, "The group is exist");
-				return false;
+				return true;
 			}
 			await bot.SendTextMessageAsync(message.Chat.Id, "Incorrect interval, try again: ");
 			return false;

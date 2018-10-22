@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BotChannel.BotCommand.Commands;
 using Telegram.Bot;
 
@@ -26,8 +27,8 @@ namespace BotChannel.BotCommand
 
 		public static ICommand GetCommandAction(ITelegramBotClient bot, string command)
 		{
-			var result = CommandStore[command] ?? null;
-			return result?.Invoke(bot);
+			var result = CommandStore.FirstOrDefault(f => f.Key.Equals(command, StringComparison.InvariantCultureIgnoreCase));
+			return result.Value?.Invoke(bot);
 		}
 
 		public static List<string> GetCommands()

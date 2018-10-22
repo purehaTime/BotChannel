@@ -18,20 +18,10 @@ namespace BotChannel.BotCommand.Commands
 		
 		private async Task<bool> FirstStep()
 		{
-			//must popular command. will be move to base class
-			var groupList = dbManager.GetGroups();	
-			var buttons = new List<KeyboardButton>();
-
-			foreach (var group in groupList)
-			{
-				buttons.Add(new KeyboardButton(group.Title));
-			}
-
-			var replyButtons = new ReplyKeyboardMarkup(buttons);
-			await bot.SendTextMessageAsync(message.From.Id, "Choose group to stop posting:", replyMarkup: replyButtons);
+			var result = await ChooseGroupStep(dbManager, "Choose group to stop posting:");
 			NextState = SecondStep;
 
-			return false;
+			return result;
 		}
 
 		private async Task<bool> SecondStep()

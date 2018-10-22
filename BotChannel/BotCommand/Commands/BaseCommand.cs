@@ -1,8 +1,10 @@
-﻿using System;
+﻿using BotChannel.DataManager;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotChannel.BotCommand.Commands
 {
@@ -12,6 +14,7 @@ namespace BotChannel.BotCommand.Commands
 
 		protected ITelegramBotClient bot;
 		protected Message message;
+		private object dbManager;
 
 		public virtual async Task<bool> Action(Message updateMessage)
 		{
@@ -28,6 +31,38 @@ namespace BotChannel.BotCommand.Commands
 		{
 			bot = clientBot;
 			NextState = () => { return null; }; //default state
+		}
+
+		/// <summary>
+		/// always false
+		/// </summary>
+		/// <param name="dbManager">//actually bad way by OOP concept</param>
+		/// <param name="textToSend"></param>
+		/// <returns></returns>
+		protected async Task<bool> ChooseGroupStep(DbManager dbManager, string textToSend)
+		{
+			var groupList = dbManager.GetGroups();
+
+			var oddRow = new List<InlineKeyboardButton>();
+			var evenRow = new List<InlineKeyboardButton>();
+			for (var i = 1; i <= groupList.Count; i++) //it is needs for two colums button builds
+			{
+				var text = groupList[i].Title ?? groupList[i].GroupId;
+				if (i % 2 == 0)
+				{
+					evenRow.Add(InlineKeyboardButton.WithCallbackData(text));
+					break;
+				}
+				oddRow.Add(InlineKeyboardButton.WithCallbackData(text));
+			}
+
+			var buttons = new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>> {
+				 oddRow,
+				 evenRow
+			});
+
+			await bot.SendTextMessageAsync(message.From.Id, textToSend, replyMarkup: buttons);
+			return false;
 		}
 	}
 

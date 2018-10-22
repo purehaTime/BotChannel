@@ -23,19 +23,10 @@ namespace BotChannel.BotCommand.Commands
 
 		private async Task<bool> FirstStep()
 		{
-			var groupList = dbManager.GetGroups();
-			var buttons = new List<KeyboardButton>();
-
-			foreach (var group in groupList)
-			{
-				buttons.Add(new KeyboardButton(group.Title));
-			}
-
-			var replyButtons = new ReplyKeyboardMarkup(buttons);
-			await bot.SendTextMessageAsync(message.From.Id, "Choose group to add:", replyMarkup: replyButtons);
+			var result = await ChooseGroupStep(dbManager, "Choose group to add content:");
 
 			NextState = SecondStep;
-			return false;
+			return result;
 		}
 
 		private async Task<bool> SecondStep()

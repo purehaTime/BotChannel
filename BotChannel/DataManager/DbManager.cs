@@ -60,6 +60,16 @@ namespace BotChannel.DataManager
 			return group;
 		}
 
+		public Group GetGroupById(string groupId)
+		{
+			Group group = null;
+			using (var db = new LiteDatabase(Dbfile))
+			{
+				group = db.GetCollection<Group>("Groups").FindOne(f => f.GroupId.Equals(groupId));
+			}
+			return group;
+		}
+
 		public void UpdateGroup(Group updatingGroup)
 		{
 			using (var db = new LiteDatabase(Dbfile))

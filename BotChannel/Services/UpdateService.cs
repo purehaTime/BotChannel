@@ -110,7 +110,7 @@ namespace BotChannel.Services
 			var list = BotCommands.GetCommands();
 
 			var result = "Available commands: \r\n";
-			result = string.Join("\r\n", list);
+			result += string.Join("\r\n", list);
 
 			await _botService.Client.SendTextMessageAsync(message.From.Id, result);
 		}
