@@ -31,8 +31,15 @@ namespace BotChannel.Services
 			if (!Validation(update))
 				return;
 
+			if (update.Message == null)//button click
+			{
+				update.Message = update.CallbackQuery.Message;
+				update.Message.From = update.CallbackQuery.From;
+				update.Message.Text = update.CallbackQuery.Data;
+			}
+
 			var message = update.Message;
-			var idUser = message.From.Id;
+			var idUser =  message.From.Id;
 			//if it is has command - execute next state	of command
 			var action = _botService.UserActions.FirstOrDefault(user => user.IdUser == idUser);
 
@@ -77,20 +84,20 @@ namespace BotChannel.Services
 		/// <returns></returns>
 		private bool Validation(Update update)
 		{
-			if (update.Type != UpdateType.Message)
+			if (update.Type != UpdateType.Message && update.Type != UpdateType.CallbackQuery)
 			{
 				return false;
 			}
 
-			var message = update.Message;
+			var message = update.Message ?? update.CallbackQuery.Message;
 
-			if (_previosMessageId == message.MessageId)
+			if (_previosMessageId == message?.MessageId && update.CallbackQuery == null)
 			{
 				return false; //prevent "spaming" from telegram server
 			}
 			_previosMessageId = message.MessageId;
 
-			var idUser = message.From.Id;
+			var idUser = update.CallbackQuery == null ? message.From.Id : update.CallbackQuery.From.Id;
 
 			//only for valid users
 			if (!_botService.UserAccess.Any(u => u == idUser))

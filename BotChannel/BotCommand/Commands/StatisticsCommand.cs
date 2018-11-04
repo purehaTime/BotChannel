@@ -18,7 +18,7 @@ namespace BotChannel.BotCommand.Commands
 		
 		private async Task<bool> FirstStep()
 		{
-			var result = await ChooseGroupStep(dbManager, "Choose group to stop posting:");
+			var result = await ChooseGroupStep(dbManager, "Choose group to show stats:");
 			NextState = SecondStep;
 
 			return false;

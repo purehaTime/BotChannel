@@ -45,13 +45,13 @@ namespace BotChannel.BotCommand.Commands
 
 			var oddRow = new List<InlineKeyboardButton>();
 			var evenRow = new List<InlineKeyboardButton>();
-			for (var i = 1; i <= groupList.Count; i++) //it is needs for two colums button builds
+			for (var i = 0; i < groupList.Count; i++) //it is needs for two colums button builds
 			{
 				var text = groupList[i].Title ?? groupList[i].GroupId;
 				if (i % 2 == 0)
 				{
 					evenRow.Add(InlineKeyboardButton.WithCallbackData(text));
-					break;
+					continue;
 				}
 				oddRow.Add(InlineKeyboardButton.WithCallbackData(text));
 			}
