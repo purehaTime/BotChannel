@@ -35,7 +35,7 @@ namespace BotChannel.Parsers
 			var id = ParseId(linkPost);
 			var post = await vkApi.Wall.GetByIdAsync(new[] { id });
 
-			if (post.WallPosts.Any())
+			if (post?.WallPosts.Any() == true)	// used nullable<bool>
 			{
 				foreach (var attach in post.WallPosts[0].Attachments)
 				{
@@ -84,7 +84,7 @@ namespace BotChannel.Parsers
 		private string ParseId(string linkId)
 		{
 			var splitter = linkId.Split("/");
-			return splitter.Last();
+			return splitter.Last().Replace("wall", "").Replace("album", "");
 		}
 	}
 }

@@ -112,7 +112,7 @@ namespace BotChannel
 				while (true)
 				{
 					//delay will be first, coz groups may be have diff interval, so just for stop spaming
-					await Task.Delay(group.Interval);
+					await Task.Delay(group.Interval * 1000);
 					
 					DbManager db = new DbManager();
 					//for randomly post

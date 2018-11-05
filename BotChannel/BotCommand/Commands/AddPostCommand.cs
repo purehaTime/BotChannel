@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotChannel.BotCommand.Commands
 {
@@ -51,6 +50,7 @@ namespace BotChannel.BotCommand.Commands
 		private async Task<bool> ThridStep()
 		{
 			var linkList = message.Text.Split(",");
+			var counts = 0;
 			foreach (var link in linkList)
 			{
 				if (IsValid(link))
@@ -64,11 +64,18 @@ namespace BotChannel.BotCommand.Commands
 					{
 						parsedLinks = link.Split(";").ToList();
 					}
-					SavePostToDb(parsedLinks);
+
+					if (SavePostToDb(parsedLinks))
+					{
+						counts++;
+					}
 				}
 			}
 
-			await bot.SendTextMessageAsync(message.From.Id, $"Complete ! Saved {linkList.Count()} posts");
+			var fake = counts > 0
+				? await bot.SendTextMessageAsync(message.From.Id, $"Complete ! Saved {counts} posts")
+				: await bot.SendTextMessageAsync(message.From.Id, $"Nothing to save");
+
 			return true;
 		}
 
@@ -82,7 +89,7 @@ namespace BotChannel.BotCommand.Commands
 
 		private async Task<List<string>> ParseAsVK(string link)
 		{
-			VkParser vk = new VkParser();
+			VkParser vk = new VkParser(true);
 			if (link.Contains("wall"))
 			{
 				return await vk.GetLinksFromPost(link);
@@ -90,12 +97,13 @@ namespace BotChannel.BotCommand.Commands
 			return await vk.GetLinksFromAlbum(link);
 		}
 
-		private void SavePostToDb(List<string> linkList)
+		private bool SavePostToDb(List<string> linkList)
 		{
 			contentSave.MessagerType = "telegram";
 			contentSave.Posted = false;
 			contentSave.PhotoList = linkList.ToArray();
 			dbManager.AddNewPost(contentSave);
+			return true;
 		}
 	}
 

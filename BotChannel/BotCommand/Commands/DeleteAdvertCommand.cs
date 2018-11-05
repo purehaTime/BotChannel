@@ -14,18 +14,19 @@ namespace BotChannel.BotCommand.Commands
 		private Advert advert;
 		private List<Advert> advertList;
 
-		private ReplyKeyboardMarkup advertSwitcher;
+		private InlineKeyboardMarkup buttons;
 
 		public DeleteAdvertCommand(ITelegramBotClient clientBot) : base(clientBot)
 		{
 			NextState = FirstStep;
 			dbManager = new DbManager();
 
-			advertSwitcher = new ReplyKeyboardMarkup(new List<KeyboardButton>
+			var switcherButtons = new List<InlineKeyboardButton>()
 			{
-				new KeyboardButton("Next advert"),
-				new KeyboardButton("Delete this")
-			});
+				InlineKeyboardButton.WithCallbackData("Next advert"),
+				InlineKeyboardButton.WithCallbackData("Delete this"),
+			};
+			var buttons = new InlineKeyboardMarkup(switcherButtons);
 		}
 		
 		private async Task<bool> FirstStep()
@@ -45,7 +46,7 @@ namespace BotChannel.BotCommand.Commands
 				if (advertList.Count > 0)
 				{
 					await bot.SendTextMessageAsync(message.From.Id, $"Found {advertList.Count} adverts for {group.Title} ");
-					await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: advertSwitcher);
+					await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: buttons);
 					
 					NextState = ThridStep;
 					return false;
@@ -72,8 +73,8 @@ namespace BotChannel.BotCommand.Commands
 					return true;
 				}
 				advertList.RemoveAt(0);
-				await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: advertSwitcher);
-				advertList.RemoveAt(0);
+				await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: buttons);
+
 				return false;
 
 			}

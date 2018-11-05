@@ -18,13 +18,21 @@ namespace BotChannel.BotCommand.Commands
 
 		public virtual async Task<bool> Action(Message updateMessage)
 		{
-			if (updateMessage.Text.Equals("/cancel"))
+			try
 			{
-				return true;
-			}
+				if (updateMessage.Text.Equals("/cancel"))
+				{
+					return true;
+				}
 
-			message = updateMessage;
-			return await NextState();
+				message = updateMessage;
+				return await NextState();
+			}
+			catch (Exception err)
+			{
+				await bot.SendTextMessageAsync(message.From.Id, "Something wrong! " + err.Message);
+			}
+			return true;
 		}
 
 		public BaseCommand(ITelegramBotClient clientBot)

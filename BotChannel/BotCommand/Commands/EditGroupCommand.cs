@@ -1,9 +1,7 @@
 ﻿using BotChannel.DataManager;
 using BotChannel.Model;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotChannel.BotCommand.Commands
 {

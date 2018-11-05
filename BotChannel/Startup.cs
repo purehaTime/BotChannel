@@ -1,4 +1,5 @@
 ﻿using BotChannel.DataManager;
+using BotChannel.Parsers;
 using BotChannel.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +26,8 @@ namespace BotChannel
 			services.Configure<BotConfiguration>(Configuration.GetSection("BotConfiguration"));
 
 			DbManager.Dbfile = Configuration.GetSection("Db")?.GetValue<string>("File");
+			VkParser.AccessToken = Configuration.GetSection("VK")?.GetValue<string>("AccessToken");
 
-			
 
 		}
 
