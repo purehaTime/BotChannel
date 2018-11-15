@@ -31,7 +31,8 @@ namespace BotChannel.BotCommand.Commands
 				var availableContent = dbManager.GetCountAvailablePostForGroup(group);
 				var runAdverts = Worker.GetRunningAdverts(group);
 
-				await bot.SendTextMessageAsync(message.From.Id, $"Adverts: Run - {runAdverts}, available - {allAdvert.Count}, Available content: {availableContent}");
+				await bot.SendTextMessageAsync(message.From.Id, $"Adverts: Run - {runAdverts}, available - {allAdvert.Count} " +
+					$"\r\n Available content: {availableContent}, interval: {group.Interval}");
 				return true;
 			}
 			await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was not found");

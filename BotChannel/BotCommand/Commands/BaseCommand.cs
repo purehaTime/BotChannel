@@ -51,23 +51,22 @@ namespace BotChannel.BotCommand.Commands
 		{
 			var groupList = dbManager.GetGroups();
 
-			var oddRow = new List<InlineKeyboardButton>();
-			var evenRow = new List<InlineKeyboardButton>();
-			for (var i = 0; i < groupList.Count; i++) //it is needs for two colums button builds
+			var columnButton = new List<InlineKeyboardButton>();
+			var gridButtons = new List<List<InlineKeyboardButton>>();
+
+			for (var i = 1; i <= groupList.Count; i++) //it is needs for two colums button builds
 			{
-				var text = groupList[i].Title ?? groupList[i].GroupId;
+				var text = groupList[i-1].Title ?? groupList[i-1].GroupId;
+
+				columnButton.Add(InlineKeyboardButton.WithCallbackData(text));
 				if (i % 2 == 0)
 				{
-					evenRow.Add(InlineKeyboardButton.WithCallbackData(text));
-					continue;
+					gridButtons.Add(columnButton);
+					columnButton = new List<InlineKeyboardButton>();
 				}
-				oddRow.Add(InlineKeyboardButton.WithCallbackData(text));
 			}
 
-			var buttons = new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>> {
-				 oddRow,
-				 evenRow
-			});
+			var buttons = new InlineKeyboardMarkup(gridButtons);
 
 			await bot.SendTextMessageAsync(message.From.Id, textToSend, replyMarkup: buttons);
 			return false;
