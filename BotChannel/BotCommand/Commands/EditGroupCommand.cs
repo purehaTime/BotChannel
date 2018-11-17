@@ -35,7 +35,7 @@ namespace BotChannel.BotCommand.Commands
 				return true;
 			}
 
-			await bot.SendTextMessageAsync(message.From.Id, $"The old interval of posting is - {groupEdit.Interval} seconds. Enter new interval:");
+			await bot.SendTextMessageAsync(message.From.Id, $"The old interval of posting is - {groupEdit.Interval} minutes. Enter new interval:");
 			NextState = ThridStep;
 			return false;
 

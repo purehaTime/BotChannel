@@ -45,7 +45,7 @@ namespace BotChannel.BotCommand.Commands
 		private async Task<bool> ThridStep()
 		{
 			advert.Message = message.Text;
-			await bot.SendTextMessageAsync(message.From.Id, "Enter a interval for this advert");
+			await bot.SendTextMessageAsync(message.From.Id, "Enter a interval (minutes) for this advert");
 			NextState = FourthStep;
 
 			return false;
@@ -58,7 +58,8 @@ namespace BotChannel.BotCommand.Commands
 				advert.Interval = interval;
 				advert.GroupId = groupForAdvert.GroupId;
 				dbManager.AddAdvert(advert);
-				await bot.SendTextMessageAsync(message.From.Id, $"The advert was added for {groupForAdvert.Title} with {advert.Interval}");
+				Worker.StartNewAdvert(advert);
+				await bot.SendTextMessageAsync(message.From.Id, $"The advert was added for {groupForAdvert.Title} with {advert.Interval} minutes");
 				return true;
 			}
 

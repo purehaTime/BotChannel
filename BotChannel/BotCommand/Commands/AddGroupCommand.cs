@@ -44,7 +44,7 @@ namespace BotChannel.BotCommand.Commands
 					Link = group.InviteLink
 				};
 
-				await bot.SendTextMessageAsync(message.Chat.Id, "Enter a interval (in seconds) of time of post");
+				await bot.SendTextMessageAsync(message.Chat.Id, "Enter a interval (in minutes) of time of post");
 				NextState = ThridStep;
 				return false;
 			}

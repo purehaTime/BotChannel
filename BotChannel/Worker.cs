@@ -103,6 +103,21 @@ namespace BotChannel
 			});
 		}
 
+		public static void ReastartWorker()
+		{
+			foreach (var task in _tasksWorkerAdvert)
+			{
+				task.TaskToken.Cancel();
+			};
+
+			foreach (var task in _tasksWorkerPost)
+			{
+				task.TaskToken.Cancel();
+			}
+
+			StartPosting(_botService);
+		}
+
 		private static async Task PosterWork(Group group)
 		{
 			var bot = _botService.Client;
@@ -112,7 +127,7 @@ namespace BotChannel
 				while (true)
 				{
 					//delay will be first, coz groups may be have diff interval, so just for stop spaming
-					await Task.Delay(group.Interval * 1000);
+					await Task.Delay(group.Interval * 1000 * 60); //convert to minutes
 					
 					DbManager db = new DbManager();
 					//for randomly post
@@ -156,7 +171,7 @@ namespace BotChannel
 			{
 				while (true)
 				{
-					await Task.Delay(advert.Interval);
+					await Task.Delay(advert.Interval * 1000 * 60); //convert to minutes;
 					await bot.SendTextMessageAsync(advert.GroupId, advert.Message);
 				}
 

@@ -26,7 +26,7 @@ namespace BotChannel.BotCommand.Commands
 				InlineKeyboardButton.WithCallbackData("Next advert"),
 				InlineKeyboardButton.WithCallbackData("Delete this"),
 			};
-			var buttons = new InlineKeyboardMarkup(switcherButtons);
+			buttons = new InlineKeyboardMarkup(switcherButtons);
 		}
 		
 		private async Task<bool> FirstStep()
@@ -45,9 +45,9 @@ namespace BotChannel.BotCommand.Commands
 				advertList = dbManager.GetAdvertsByGroup(group);
 				if (advertList.Count > 0)
 				{
-					await bot.SendTextMessageAsync(message.From.Id, $"Found {advertList.Count} adverts for {group.Title} ");
+					await bot.SendTextMessageAsync(message.From.Id, $"Found {advertList.Count} adverts for {group.Title}");
 					await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: buttons);
-					
+
 					NextState = ThridStep;
 					return false;
 				}
@@ -72,13 +72,13 @@ namespace BotChannel.BotCommand.Commands
 					await bot.SendTextMessageAsync(message.From.Id, "Advert was removed");
 					return true;
 				}
-				advertList.RemoveAt(0);
-				await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: buttons);
-
-				return false;
-
+				advertList.RemoveAt(0);	
+				if (advertList.Count > 0)
+				{
+					await bot.SendTextMessageAsync(message.From.Id, advertList.FirstOrDefault()?.Message, replyMarkup: buttons);
+					return false;
+				}
 			}
-
 			await bot.SendTextMessageAsync(message.From.Id, "No more adverts at list");
 			return false;
 		}
