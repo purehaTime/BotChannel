@@ -15,10 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
     <PackageReference Include="Telegram.Bot" Version="14.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\VkApi\VkApi.csproj" />
+    <PackageReference Include="VkNet" Version="1.39.0" />
   </ItemGroup>
 
   <ItemGroup>

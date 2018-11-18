@@ -37,8 +37,12 @@ namespace BotChannel.BotCommand.Commands
 				await bot.SendTextMessageAsync(message.From.Id, "It seems, chosed group was not found");
 				return true;
 			}
+
 			contentSave = new Content();
 			contentSave.GroupId = group?.GroupId;
+			contentSave.MessagerType = "telegram";
+			contentSave.Posted = false;
+
 			var request = await bot.SendTextMessageAsync(message.From.Id, "Send direct links " +
 				"(separate by ',' for one post and ';' for array photo to one post). Or VK post/album (every wall-link for one post " +
 				"and one photo from album well be save for one post)");
@@ -53,21 +57,36 @@ namespace BotChannel.BotCommand.Commands
 			var counts = 0;
 			foreach (var link in linkList)
 			{
-				if (IsValid(link))
+				if (IsValid(link))	   //pretty shit logic
 				{
-					List<string> parsedLinks = null;
-					if (link.Contains("vk.") && (link.Contains("album") || link.Contains("wall")))   //parse with VK api
+					List<List<string>> parsed = new List<List<string>>();
+					if (link.Contains("vk.") && (link.Contains("wall") || link.Contains("album")))   //parse with VK api
 					{
-						parsedLinks = await ParseAsVK(link);
+						var result = await ParseAsVK(link);
+						if (link.Contains("wall"))
+						{
+							parsed.Add(result);
+						}
+						else
+						{
+							foreach (var item in result)
+							{
+								parsed.Add(new List<string>() { item });
+							}
+						}
+						
 					}
 					else
 					{
-						parsedLinks = link.Split(";").ToList();
+						parsed.Add(link.Split(";").ToList());
 					}
 
-					if (SavePostToDb(parsedLinks))
+					foreach (var links in parsed)
 					{
-						counts++;
+						if (SavePostToDb(links))
+						{
+							counts++;
+						}
 					}
 				}
 			}
@@ -99,8 +118,7 @@ namespace BotChannel.BotCommand.Commands
 
 		private bool SavePostToDb(List<string> linkList)
 		{
-			contentSave.MessagerType = "telegram";
-			contentSave.Posted = false;
+			contentSave.Id = 0; //reset index
 			contentSave.PhotoList = linkList.ToArray();
 			dbManager.AddNewPost(contentSave);
 			return true;
