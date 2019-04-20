@@ -1,6 +1,7 @@
 language: csharp
 solution: BotChannel.sln
 mono: none
-dotnet: 2.1.1
+dotnet: 2.1
 script:
  - dotnet restore
+ - dotnet build
